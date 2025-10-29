@@ -17,7 +17,7 @@ public class LibrarySystem {
     private Logger logger;
 
     public LibrarySystem() {
-        this.library = new Library();
+        this.library = Library.getInstance();
         this.scanner = new Scanner(System.in);
         this.logger = Logger.getInstance();
     }

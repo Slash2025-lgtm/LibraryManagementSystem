@@ -129,7 +129,7 @@ public class TestRunner {
     }
 
     private static void testLibrary() {
-        Library library = new Library();
+        Library library = Library.getInstance();
 
         // Test adding items
         Book book = new Book("1234567890", "Java Programming", "John Author", "Programming");

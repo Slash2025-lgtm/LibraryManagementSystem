@@ -14,10 +14,19 @@ public class Library {
     private static int memberCounter = 1000;
     private Logger logger = Logger.getInstance();
 
-    public Library() {
+    private static Library instance;
+
+    private Library() {
         this.items = new HashMap<>();
         this.members = new HashMap<>();
         logger.info("Library system initialized");
+    }
+
+    public static Library getInstance() {
+        if (instance == null) {
+            instance = new Library();
+        }
+        return instance;
     }
 
     // Item management
