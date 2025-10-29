@@ -75,6 +75,16 @@ public class Library {
         return books;
     }
 
+    public List<Movie> getAllMovies() {
+        List<Movie> movies = new ArrayList<>();
+        for (Item item : items.values()) {
+            if (item instanceof Movie) {
+                movies.add((Movie) item);
+            }
+        }
+        return movies;
+    }
+
     public List<Book> getAvailableBooks() {
         List<Book> availableBooks = new ArrayList<>();
         for (Item item : items.values()) {
@@ -84,6 +94,17 @@ public class Library {
         }
         return availableBooks;
     }
+
+    public List<Movie> getAvailableMovies() {
+        List<Movie> availableMovies = new ArrayList<>();
+        for (Item item : items.values()) {
+            if (item instanceof Movie && item.isAvailable()) {
+                availableMovies.add((Movie) item);
+            }
+        }
+        return availableMovies;
+    }
+
 
     // Member management
     public boolean addMember(Member member) {
@@ -114,10 +135,10 @@ public class Library {
         query = query.toLowerCase();
 
         for (Item item : items.values()) {
-            if (item.getTitle().contains(query) ||
-                    item.getCreator().contains(query) ||
-                    item.getGenre().contains(query) ||
-                    item.getId().contains(query)) {
+            if (item.getTitle().toLowerCase().contains(query) ||
+                    item.getCreator().toLowerCase().contains(query) ||
+                    item.getGenre().toLowerCase().contains(query) ||
+                    item.getId().toLowerCase().contains(query)) {
                 results.add(item);
             }
         }
@@ -128,7 +149,7 @@ public class Library {
     public List<Item> searchByGenre(String genre) {
         List<Item> results = new ArrayList<>();
         for (Item item : items.values()) {
-            if (item.getGenre().contains(genre)) {
+            if (item.getGenre().equals(genre)) {
                 results.add(item);
             }
         }
@@ -159,6 +180,17 @@ public class Library {
         return bookResults;
     }
 
+    public List<Movie> searchMovies(String query) {
+        List<Movie> movieResults = new ArrayList<>();
+        List<Item> allResults = searchItems(query);
+        for (Item item : allResults) {
+            if (item instanceof Movie) {
+                movieResults.add((Movie) item);
+            }
+        }
+        return movieResults;
+    }
+
     public List<Book> searchByAuthor(String author) {
         List<Book> bookResults = new ArrayList<>();
         List<Item> allResults = searchByCreator(author);
@@ -168,6 +200,17 @@ public class Library {
             }
         }
         return bookResults;
+    }
+
+    public List<Movie> searchByDirector(String director) {
+        List<Movie> movieResults = new ArrayList<>();
+        List<Item> allResults = searchByCreator(director);
+        for (Item item : allResults) {
+            if (item instanceof Movie) {
+                movieResults.add((Movie) item);
+            }
+        }
+        return movieResults;
     }
 
     // Borrow/Return operations
@@ -185,8 +228,6 @@ public class Library {
             return false;
         }
 
-        item.setAvailable(false);
-
         if (!item.isAvailable()) {
             logger.warn("Borrow attempt failed - Item not available: " + item.getTitle() + " (ID: " + itemId + ")");
             return false; // Item not available
@@ -197,8 +238,10 @@ public class Library {
             return false; // Member already has this item
         }
 
+        item.setAvailable(false);
         member.borrowBook(itemId);
         logger.info("Item borrowed successfully - Member: " + member.getName() + " (" + memberId + "), Item: " + item.getTitle() + " (" + itemId + ")");
+
         return true;
     }
 
@@ -234,6 +277,14 @@ public class Library {
 
     public boolean returnBook(String memberId, String isbn) {
         return returnItem(memberId, isbn);
+    }
+
+    public boolean borrowMovie(String memberId, String movieId) {
+        return borrowItem(memberId, movieId);
+    }
+
+    public boolean returnMovie(String memberId, String movieId) {
+        return returnItem(memberId, movieId);
     }
 
     // File I/O operations
@@ -421,10 +472,92 @@ public class Library {
     }
 
     public static boolean isValidEmail(String email) {
-        boolean valid = email != null && email.contains("@") && email.contains(".");
+        boolean valid = (email != null && email.contains("@") && email.contains("."));
         if (!valid) {
             Logger.getInstance().warn("Invalid email format: " + email);
         }
         return valid;
+    }
+
+    public boolean addMagazine(Magazine magazine) {
+        return addItem(magazine);
+    }
+
+    public Magazine getMagazine(String id) {
+        Item item = getItem(id);
+        return (item instanceof Magazine) ? (Magazine) item : null;
+    }
+
+    public List<Magazine> getAllMagazines() {
+        List<Magazine> magazines = new ArrayList<>();
+        for (Item item : items.values()) {
+            if (item instanceof Magazine) {
+                magazines.add((Magazine) item);
+            }
+        }
+        return magazines;
+    }
+
+    public List<Magazine> getAvailableMagazines() {
+        List<Magazine> availableMagazines = new ArrayList<>();
+        for (Item item : items.values()) {
+            if (item instanceof Magazine && item.isAvailable()) {
+                availableMagazines.add((Magazine) item);
+            }
+        }
+        return availableMagazines;
+    }
+
+    public List<Magazine> searchMagazines(String query) {
+        List<Magazine> results = new ArrayList<>();
+        query = query.toLowerCase();
+
+        for (Item item : items.values()) {
+            if (item instanceof Magazine) {
+                Magazine magazine = (Magazine) item;
+                if (magazine.getTitle().toLowerCase().contains(query) ||
+                        magazine.getCreator().toLowerCase().contains(query) ||
+                        magazine.getGenre().toLowerCase().contains(query) ||
+                        magazine.getId().toLowerCase().contains(query)) {
+                    results.add(magazine);
+                }
+            }
+        }
+        logger.info("Magazine search for '" + query + "', results: " + results.size());
+        return results;
+    }
+
+    public List<Magazine> searchMagazinesByPublisher(String publisher) {
+        List<Magazine> results = new ArrayList<>();
+        publisher = publisher.toLowerCase();
+
+        for (Item item : items.values()) {
+            if (item instanceof Magazine) {
+                Magazine magazine = (Magazine) item;
+                if (magazine.getCreator() != null &&
+                        magazine.getCreator().toLowerCase().contains(publisher)) {
+                    results.add(magazine);
+                }
+            }
+        }
+        logger.info("Magazine search by publisher '" + publisher + "', results: " + results.size());
+        return results;
+    }
+
+    public List<Magazine> searchMagazinesByGenre(String genre) {
+        List<Magazine> results = new ArrayList<>();
+        genre = genre.toLowerCase();
+
+        for (Item item : items.values()) {
+            if (item instanceof Magazine) {
+                Magazine magazine = (Magazine) item;
+                if (magazine.getGenre() != null &&
+                        magazine.getGenre().toLowerCase().contains(genre)) {
+                    results.add(magazine);
+                }
+            }
+        }
+        logger.info("Magazine search by genre '" + genre + "', results: " + results.size());
+        return results;
     }
 }

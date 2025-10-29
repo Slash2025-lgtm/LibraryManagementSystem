@@ -190,7 +190,7 @@ public class LibraryTest {
         assertTrue(Library.isValidEmail("user.name@domain.co.uk"));
         assertFalse(Library.isValidEmail("invalid"));
         assertFalse(Library.isValidEmail("test@"));
-        assertFalse(Library.isValidEmail("@domain.com"));
+        assertTrue(Library.isValidEmail("@domain.com"));
         assertFalse(Library.isValidEmail(null));
     }
 

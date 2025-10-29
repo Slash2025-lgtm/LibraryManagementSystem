@@ -1,5 +1,8 @@
 package com.pluralsight.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Movie extends Item {
     private int duration; // in minutes
 
@@ -28,7 +31,7 @@ public class Movie extends Item {
 
     @Override
     public int getBorrowDuration() {
-        return duration; // 3 days for movies
+        return 3; // 3 days for movies
     }
 
     @Override
@@ -37,4 +40,5 @@ public class Movie extends Item {
                 getId(), getTitle(), getDirector(), getGenre(), duration,
                 isAvailable() ? "Available" : "Borrowed");
     }
+
 }
